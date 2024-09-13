@@ -14,25 +14,29 @@ def get_conds(state: MultiVarGauss2d,
               sens_model_r: LinearSensorModel2d, meas_r: Measurement2d
               ) -> Tuple[MultiVarGauss2d, MultiVarGauss2d]:
 
-    # TODO replace this with own code
-    cond_c, cond_r = task2_solu.get_conds(
-        state, sens_model_c, meas_c, sens_model_r, meas_r)
-    return cond_c, cond_r
+       cond_c = get_cond_state(state,sens_model_c,meas_c)
+       cond_r = get_cond_state(state,sens_model_r,meas_r)
+
+       return cond_c, cond_r
 
 
 def get_double_conds(state: MultiVarGauss2d,
                      sens_model_c: LinearSensorModel2d, meas_c: Measurement2d,
                      sens_model_r: LinearSensorModel2d, meas_r: Measurement2d
                      ) -> Tuple[MultiVarGauss2d, MultiVarGauss2d]:
+    cond_c, cond_r = get_conds(state, sens_model_c, meas_c, sens_model_r, meas_r)
 
-    # TODO replace this with own code
-    cond_cr, cond_rc = task2_solu.get_double_conds(
-        state, sens_model_c, meas_c, sens_model_r, meas_r)
+    cond_cr = get_cond_state(cond_c,sens_model_r, meas_r)
+    cond_rc = get_cond_state(cond_r,sens_model_c, meas_c)
+    
     return cond_cr, cond_rc
 
 
 def get_prob_over_line(gauss: MultiVarGauss2d) -> float:
 
-    # TODO replace this with own code
-    prob = task2_solu.get_prob_over_line(gauss)
+    linear_transformation = np.array([-1,1]).T
+    strandarized = gauss.get_transformed(linear_transformation)
+
+    prob = 1 - norm.cdf(5,strandarized.mean, np.sqrt(strandarized.cov))
+
     return prob
